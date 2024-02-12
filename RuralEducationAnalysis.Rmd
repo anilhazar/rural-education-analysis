@@ -1,0 +1,283 @@
+---
+title: "Project Report: Rural Education Analysis, Author: Ali Anil Hazar "
+output:
+  html_document:
+    df_print: paged
+---
+
+# Problem Definition
+
+Students in rural areas are at a disadvantage due to the challenges they face in education. The low level of education quality and problems in access to education negatively affect these students' academic achievements and overall quality of life. Various factors underlie this situation. Inequalities in education in rural areas, economic conditions, infrastructure deficiencies, and social factors come together to create barriers to students' education. A detailed data analysis is mandatory to effectively solve these complex problems. This analysis will allow us to better understand the educational experiences of students in rural areas and develop solution proposals.
+
+# Project Purpose
+
+A joint study with the government has been initiated to address the disadvantaged situation of students in rural areas in education, which has been identified as a social problem. Our company will analyze education and student data in detail to produce effective solutions to this problem. Thanks to the analysis of many factors to be addressed in the project, the root causes of the problem will be determined and the proposals to be presented to the government will be designed to create maximum impact and implement the solution most effectively. This comprehensive analysis aims to minimize disadvantages in education, aiming to positively affect the academic and social lives of students in rural areas.
+
+
+# Exploratory Data Analysis
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(readr)
+
+mathDF <- read.csv("/data/student_math_data.csv")
+portugueseDF <- read.csv("/data/student_portuguese_data.csv")
+
+cat("Data Set of Students Taking Math Course:\n")
+head(mathDF)
+cat("\nData Set of Students Taking Portuguese Course:\n")
+head(portugueseDF)
+
+cat("\nInformation on Math Course Data Set:\n")
+str(mathDF)
+cat("\nInformation on Portuguese Course Data Set:\n")
+str(portugueseDF)
+
+cat("\nStatistical Information on Math Course Data Set:\n")
+summary(mathDF)
+cat("\nStatistical Information on Portuguese Course Data Set:\n")
+summary(portugueseDF)
+
+cat("\nDuplicated Rows in Math Course:\n")
+duplicatedRowsMath <- mathDF[duplicated(mathDF), ]
+duplicatedRowsMath
+cat("\nDuplicated Rows in Portuguese Course:\n")
+duplicatedRowsPortuguese <- portugueseDF[duplicated(portugueseDF), ]
+duplicatedRowsPortuguese
+```
+
+
+# Dataset Preprocessing
+
+## Distribution of Regions Where Students Live
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+adress_type <- as.factor(mathDF$address_type)
+adress_freq <- table(adress_type)
+barplot(adress_freq, main = "Address Type Distribution", xlab = "Address Type", ylab = "Frequency", col = "lightblue", border = "black")
+```
+
+## Distribution of Student's Travel Time to Education
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+factor_travel_time <- as.factor(mathDF$travel_time)
+levels <- levels(factor_travel_time)
+counts <- table(factor_travel_time)
+barplot(counts, main = "Travel Time Distribution", xlab = "Travel Time", ylab = "Frequency", col = "lightblue", border = "black")
+```
+
+## Distributions of Student's Internet Access
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+internet_access <- as.factor(mathDF$internet_access)
+internet_freq <- table(internet_access)
+barplot(internet_freq, main = "Internet Access Distribution", xlab = "Internet Access", ylab = "Frequency", col = "lightblue", border = "black")
+
+```
+
+## Distributions of Student's Study Times
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+factor_study_time <- as.factor(mathDF$study_time)
+levels <- levels(factor_study_time)
+counts <- table(factor_study_time)
+
+barplot(counts, main = "Study Time Distribution", xlab = "Study Time", ylab = "Frequency", col = "lightblue", border = "black")
+
+```
+
+## Distributions of Math Course Grades
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+hist(mathDF$grade_1, breaks = 10, main = "1st Term Grade Distribution", xlab = "Grade", ylab = "Frequency", col = "lightblue", border = "black")
+hist(mathDF$grade_2, breaks = 10, main = "2nd Term Grade Distribution", xlab = "Grade", ylab = "Frequency", col = "lightblue", border = "black")
+hist(mathDF$final_grade, breaks = 10, main = "Final Grade Distribution", xlab = "Grade", ylab = "Frequency", col = "lightblue", border = "black")
+
+```
+
+## Distributions of Portuguese Course Grades
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+hist(portugueseDF$grade_1, breaks = 10, main = "1st Term Grade Distribution", xlab = "Grade", ylab = "Frequency", col = "lightblue", border = "black")
+hist(portugueseDF$grade_2, breaks = 10, main = "2nd Term Grade Distribution", xlab = "Grade", ylab = "Frequency", col = "lightblue", border = "black")
+hist(portugueseDF$final_grade, breaks = 10, main = "Final Grade Distribution", xlab = "Grade", ylab = "Frequency", col = "lightblue", border = "black")
+```
+
+## Filtering and Summary Report Done in Data Preprocessing Stage
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+library(dplyr)
+library(tibble)
+
+mathDF <- read_csv("/data/student_math_data.csv")
+portugueseDF <- read_csv("/data/student_portuguese_data.csv")
+
+mathDF$address_type <- as.factor(mathDF$address_type)
+portugueseDF$address_type <- as.factor(portugueseDF$address_type)
+
+mathDF$travel_time <- gsub("15 to 30 min.", "22", mathDF$travel_time)
+mathDF$travel_time <- gsub("<15 min.", "7", mathDF$travel_time)
+mathDF$travel_time <- as.numeric(gsub(",", ".", mathDF$travel_time))
+
+portugueseDF$travel_time <- gsub("15 to 30 min.", "22", portugueseDF$travel_time)
+portugueseDF$travel_time <- gsub("<15 min.", "7", portugueseDF$travel_time)
+portugueseDF$travel_time <- as.numeric(gsub(",", ".", portugueseDF$travel_time))
+
+mathDF$study_time <- as.numeric(gsub("2 to 5 hours", "4", mathDF$study_time))
+mathDF$study_time <- as.numeric(gsub("5 to 10 hours", "7", mathDF$study_time))
+mathDF$study_time <- as.numeric(gsub("<2 hours", "1", mathDF$study_time))
+mathDF$study_time <- as.numeric(gsub(">10 hours", "12", mathDF$study_time))
+
+portugueseDF$study_time <- as.numeric(gsub("2 to 5 hours", "4", portugueseDF$study_time))
+portugueseDF$study_time <- as.numeric(gsub("5 to 10 hours", "7", portugueseDF$study_time))
+portugueseDF$study_time <- as.numeric(gsub("<2 hours", "1", portugueseDF$study_time))
+portugueseDF$study_time <- as.numeric(gsub(">10 hours", "12", portugueseDF$study_time))
+
+mathDF[mathDF == -999] <- NA
+mathDF[mathDF == "NONE"] <- NA
+
+portugueseDF[portugueseDF == -999] <- NA
+portugueseDF[portugueseDF == "NONE"] <- NA
+
+mathDF <- mathDF[!is.na(mathDF$grade_1), ]
+portugueseDF <- portugueseDF[!is.na(portugueseDF$grade_1), ]
+
+tibblemathDF <- as_tibble(mathDF)
+tibbleportugueseDF <- as_tibble(portugueseDF)
+
+tibblemathDF$study_time <- as.numeric(tibblemathDF$study_time)
+tibbleportugueseDF$study_time <- as.numeric(tibbleportugueseDF$study_time)
+
+cat("Cleaned and Processed Math Course Data Set\n")
+head(tibblemathDF)
+cat("Cleaned and Processed Portuguese Course Data Set\n")
+head(tibbleportugueseDF)
+
+```
+
+### Summary Report
+Data Transformation: You transform the values in the 'address_type', 'travel_time' and 'study_time' columns. These transformations put your data in a more suitable format for analyzing.
+
+Processing Missing Data: You replace missing values in the dataset with NA and remove rows with NA in the 'grade_1' column.
+
+Converting a Data Frame into a Tibble: You convert your preprocessed data frame into a tibble. Tibbles are a more modern and user-friendly version of data frames.
+
+Data Review: Finally, you view the first six rows of the pre-processed tibble. This provides a summary of the dataset and verifies that the data has been loaded and processed correctly.
+
+
+# Data Engineering
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(gridExtra)
+
+merged_data <- merge(mathDF, portugueseDF, by = "student_id")
+
+merged_data$average_grade <- rowMeans(merged_data[, c("grade_1.x", "grade_2.x", "final_grade.x", "grade_1.y", "grade_2.y", "final_grade.y")])
+
+merged_data$weighted_average_grade <- 0.4 * merged_data$average_grade + 0.3 * ((merged_data$grade_1.x + merged_data$grade_2.x) / 2 + (merged_data$grade_1.y + merged_data$grade_2.y) / 2) / 2
+
+merged_data$weighted_average_grade <- as.integer(round(merged_data$weighted_average_grade))
+
+address_type_summary <- merged_data %>%
+  group_by(address_type.x) %>%
+  summarise(avg_travel_time = mean(travel_time.x),
+            avg_internet_access = mean(internet_access.x),
+            avg_study_time = mean(study_time.x))
+
+rural_students <- merged_data %>%
+  filter(address_type.x == "Rural") %>%
+  select(student_id, address_type.x, weighted_average_grade, travel_time.x, internet_access.x, study_time.x)
+
+urban_students <- merged_data %>%
+  filter(address_type.x == "Urban") %>%
+  select(student_id, address_type.x, weighted_average_grade, travel_time.x, internet_access.x, study_time.x)
+
+cat("Data Set of Students Living in Rural Area\n")
+head(rural_students)
+cat("Data Set of Students Living in Urban Area\n")
+head(urban_students)
+
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(gridExtra)
+
+plot_weighted_average_grade <- ggplot(merged_data, aes(x = address_type.x, y = weighted_average_grade, fill = address_type.x)) +
+  geom_boxplot() +
+  labs(title = "Weighted Average Grade Comparison", x = "Address Type", y = "Weighted Average Grade") +
+  theme_minimal()
+
+plot_travel_time <- ggplot(merged_data, aes(x = address_type.x, y = travel_time.x, color = address_type.x)) +
+  geom_point(position = position_jitter(width = 0.2), size = 2) +
+  labs(title = "Travel Time Comparison", x = "Address Type", y = "Travel Time") +
+  theme_minimal()
+
+plot_internet_access <- ggplot(merged_data, aes(x = address_type.x, fill = internet_access.x)) +
+  geom_bar(stat = "count") +
+  labs(title = "Internet Access Comparison", x = "Address Type", y = "Count") +
+  theme_minimal()
+
+plot_study_time <- ggplot(merged_data, aes(x = address_type.x, y = study_time.x, color = address_type.x)) +
+  geom_point(position = position_jitter(width = 0.2), size = 2) +
+  labs(title = "Study Time Comparison", x = "Address Type", y = "Study Time") +
+  theme_minimal()
+
+grid.arrange(plot_weighted_average_grade, plot_travel_time, plot_internet_access, plot_study_time, ncol = 2)
+
+```
+
+# Data Analysis
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+merged_data[is.na(merged_data)] <- 0
+
+
+similar_study_time_groups <- merged_data %>%
+  filter(study_time.x == study_time.y) %>%
+  group_by(address_type.x, internet_access.x, weighted_average_grade) %>%
+  summarise(avg_travel_time = mean(as.integer(travel_time.x)))
+
+# Table 1: Examination of Students with Similar Study Times but Different Grades by Address Type and Internet Access
+# This table shows the examination of students with similar study times but different grades by address type and internet access.
+cat("Examination of Students with Similar Study Times but Different Grades by Address Type and Internet Access\n")
+head(head(similar_study_time_groups))
+
+# Graph 1: Comparison of average travel times of rural and urban students with similar study times
+### This graph compares the average travel times of students living in different address types but having similar study times.
+plot_travel_time_difference <- ggplot(similar_study_time_groups, aes(x = address_type.x, y = avg_travel_time, color = address_type.x)) +
+  geom_point(position = position_jitter(width = 0.2), size = 2) +
+  labs(title = "Travel Times of Students", x = "Address Type", y = "Average Travel Time") +
+  theme_minimal()
+
+# Graph 2: Comparison of Internet Access Status of Students with Similar Study Times but Different Grades by Address Type and Internet Access
+# This graph shows the distribution of students with similar study times but different grades by address type and internet access status.
+plot_internet_access_difference <- ggplot(similar_study_time_groups, aes(x = address_type.x, fill = internet_access.x)) +
+  geom_bar(stat = "count", position = position_dodge()) +
+  labs(title = "Distribution Internet Access", x = "Address Type", y = "Count", fill = "Internet Access") +
+  theme_minimal()
+
+grid.arrange(plot_travel_time_difference, plot_internet_access_difference, ncol = 2)
+
+```
+
+# Evaluation of results, recommendations
+
+-In this project, we have analyzed in detail the differences between the academic performances of students living in rural and urban areas. Our goal, in accordance with agile principles, was to determine the root causes of these differences and present effective solution proposals to the government.
+
+-After the Q4 stage, as a result of a meeting we had with the government officials responsible for the project, it was decided in accordance with the joint decision of the instructors and psychologists that we needed to include the data of not only a numerical course but also a verbal course in measuring the success of the students. This decision allowed us to evaluate the students’ success not only from a numerical perspective but also from a verbal perspective.
+
+-Adding a new data set to our project, which is managed in accordance with agile principles, was quite compatible with our agile software approach, which can be implemented quickly and effectively. This new data set allowed us to provide a broader perspective by including not only a numerical perspective but also verbal abilities.
+
+-This development increased the ability of our project to perform a more comprehensive and diverse analysis. Now we can evaluate student performance not only based on a math course but also based on the data of a verbal course. This allows the results we obtain to be evaluated from a wider perspective and the development of solution proposals to be more effectively.
+
+-In this project, we compared the grades of students in Portuguese and Math courses using a 30% midterm and 40% final weighted average. We made sure to make a fair comparison by selecting students with similar study times.
+
+-The results we obtained showed that internet access does not have a significant effect on students’ academic performance, but travel time to education is an important factor. This plays a very critical role in ensuring equality of opportunity in education.
+
+-As we managed our project quickly and effectively in accordance with agile principles, we performed solution-oriented analyzes using the data we obtained. The results revealed the need to find a solution to the transportation problems of students living in rural areas. This stands out as a solution that can be implemented quickly with an agile approach and has a low cost. At this point, it is important for the government to take steps towards this problem.
+
+-The strong aspect of our project is the detailed analysis on the wide data set. However, the fact that it includes the grades of a limited number of courses stands out as the weak aspect of the project. In the future, it is recommended to include more courses for a more comprehensive analysis and to examine other factors (such as teacher quality, school equipment).
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+testthat::test_file("tests/RuralEducationAnalysisTests.R")
+
+```
+
+
